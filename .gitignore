@@ -12,6 +12,7 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 
+allure-results/
 
 # From https://github.com/github/gitignore/blob/master/Java.gitignore
 *.class

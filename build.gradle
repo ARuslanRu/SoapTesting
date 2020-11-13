@@ -1,7 +1,29 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath "io.qameta.allure:allure-gradle:2.3"
+    }
+}
+
 plugins {
     id 'org.springframework.boot' version '2.3.2.RELEASE'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'java'
+    id "io.qameta.allure" version "2.8.1"
+}
+
+allure {
+    version = '2.13.6'
+    autoconfigure = true
+    aspectjweaver = true
+    allureJavaVersion = '2.13.6'
+
+    useJUnit5 {
+        version = '2.13.6'
+    }
 }
 
 group = 'com.example.springsoapclient'
@@ -22,45 +44,46 @@ configurations {
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 // tag::wsdl[]
-task genJaxb {
-    ext.sourcesDir = "${buildDir}/generated-sources/jaxb"
-    ext.classesDir = "${buildDir}/classes/jaxb"
-    ext.schema = "https://speller.yandex.net/services/spellservice?WSDL"
-
-    outputs.dir classesDir
-
-    doLast() {
-        project.ant {
-            taskdef name: "xjc", classname: "com.sun.tools.xjc.XJCTask",
-                    classpath: configurations.jaxb.asPath
-            mkdir(dir: sourcesDir)
-            mkdir(dir: classesDir)
-
-            xjc(destdir: sourcesDir, schema: schema,
-                    package: "com.example.springsoapslient.wsdl") {
-                arg(value: "-wsdl")
-                produces(dir: sourcesDir, includes: "**/*.java")
-            }
-
-            javac(destdir: classesDir, source: 1.8, target: 1.8, debug: true,
-                    debugLevel: "lines,vars,source",
-                    classpath: configurations.jaxb.asPath) {
-                src(path: sourcesDir)
-                include(name: "**/*.java")
-                include(name: "*.java")
-            }
-
-            copy(todir: classesDir) {
-                fileset(dir: sourcesDir, erroronmissingdir: false) {
-                    exclude(name: "**/*.java")
-                }
-            }
-        }
-    }
-}
+//task genJaxb {
+//    ext.sourcesDir = "${buildDir}/generated-sources/jaxb"
+//    ext.classesDir = "${buildDir}/classes/jaxb"
+//    ext.schema = "https://speller.yandex.net/services/spellservice?WSDL"
+//
+//    outputs.dir classesDir
+//
+//    doLast() {
+//        project.ant {
+//            taskdef name: "xjc", classname: "com.sun.tools.xjc.XJCTask",
+//                    classpath: configurations.jaxb.asPath
+//            mkdir(dir: sourcesDir)
+//            mkdir(dir: classesDir)
+//
+//            xjc(destdir: sourcesDir, schema: schema,
+//                    package: "com.example.springsoapslient.wsdl") {
+//                arg(value: "-wsdl")
+//                produces(dir: sourcesDir, includes: "**/*.java")
+//            }
+//
+//            javac(destdir: classesDir, source: 1.8, target: 1.8, debug: true,
+//                    debugLevel: "lines,vars,source",
+//                    classpath: configurations.jaxb.asPath) {
+//                src(path: sourcesDir)
+//                include(name: "**/*.java")
+//                include(name: "*.java")
+//            }
+//
+//            copy(todir: classesDir) {
+//                fileset(dir: sourcesDir, erroronmissingdir: false) {
+//                    exclude(name: "**/*.java")
+//                }
+//            }
+//        }
+//    }
+//}
 // end::wsdl[]
 
 dependencies {
@@ -71,7 +94,7 @@ dependencies {
     implementation 'org.springframework.ws:spring-ws-core'
     // For Java 11:
     implementation 'org.glassfish.jaxb:jaxb-runtime'
-    compile(files(genJaxb.classesDir).builtBy(genJaxb))
+//    compile(files(genJaxb.classesDir).builtBy(genJaxb))
 
     jaxb "com.sun.xml.bind:jaxb-xjc:2.1.7"
 // end::dependency[]
@@ -81,6 +104,11 @@ dependencies {
 
 //    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
 //    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+
+    // https://mvnrepository.com/artifact/io.qameta.allure/allure-java-commons
+    implementation group: 'io.qameta.allure', name: 'allure-java-commons', version: '2.13.6'
+    implementation 'org.aspectj:aspectjweaver:1.9.5'
+
 }
 
 test {
